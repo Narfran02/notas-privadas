@@ -4,6 +4,7 @@ const rateLimit = require('express-rate-limit');
 const session = require('express-session');
 const SQLiteStore = require('connect-sqlite3')(session);
 const { doubleCsrf } = require('csrf-csrf');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 const { dbDir } = require('./db');
 
@@ -47,6 +48,9 @@ app.use(session({
         maxAge: 1000 * 60 * 60 * 24 
     }
 }));
+
+// Use cookie-parser before CSRF validation
+app.use(cookieParser());
 
 // 5. Protección CSRF
 // A. Defensa Primaria: Fetch Metadata nativo (Sec-Fetch-Site)
