@@ -8,6 +8,7 @@ const path = require('path');
 const { dbDir } = require('./db');
 
 const app = express();
+app.set('trust proxy', 1); // Confiar en el proxy reverso Nginx 
 const PORT = process.env.PORT || 3000;
 const isProd = process.env.NODE_ENV === 'production';
 
