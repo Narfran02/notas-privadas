@@ -97,6 +97,9 @@ app.get('/api/csrf-token', (req, res) => {
     res.json({ token: generateToken(req, res) });
 });
 
+// 6. Servidor Estático Fallback (Para equipos sin Docker/Nginx)
+app.use(express.static(path.join(__dirname, '../frontend')));
+
 app.get('/api/health', (req, res) => res.json({ status: 'ok', secure: true }));
 
 // Manejador de Errores Cero-Fuga (Stack Trace Zero Knowledge)
