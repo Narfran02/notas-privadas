@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./api
+    ports:
+      - "3000:3000"
+    volumes:
+      - dbsqlite:/data
+      - ./api:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - DB_DIR=/data
+      - PORT=3000
+    restart: unless-stopped
+
+  web:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    restart: unless-stopped
+
+volumes:
+  dbsqlite:

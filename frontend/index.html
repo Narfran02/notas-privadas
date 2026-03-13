@@ -1,14 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>ShadowNotes - Bóveda E2EE</title>
+    <!-- CSS Servido Localmente. Cero CDN -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <style>
+        .hidden { display: none !important; }
+        .note-card { margin-bottom: 1rem; border: 1px solid #444; border-radius: 6px; padding: 1.25rem; background: #222; }
+        .note-text { white-space: pre-wrap; word-break: break-all; color: #0f0; font-family: monospace; }
+        .shadow-hero { text-shadow: 0 0 15px rgba(255, 255, 255, 0.4); letter-spacing: 2px; }
+        body { font-family: system-ui, -apple-system, sans-serif; }
+    </style>
 </head>
+<body class="bg-dark text-light">
 
-<body>
+    <div class="container mt-5" style="max-width: 800px;">
+        <h1 class="text-center shadow-hero mb-4">🛡️ ShadowNotes</h1>
+        
+        <div id="alertsContainer"></div>
 
+        <div id="authModule" class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card bg-secondary text-light border-0 shadow">
+                    <div class="card-body p-5">
+                        <h4 class="card-title text-center fw-bold">Autenticación Zero-Knowledge</h4>
+                        <div class="alert alert-warning text-dark mt-4">
+                            <strong>Aviso Crítico:</strong> Arquitectura Cero-Conocimiento. Tu contraseña cifra de extremo a extremo tus notas. Si pierdes el acceso, la recuperación material es <b>imposible</b> por nuestra parte al carecer de claves.
+                        </div>
+                        <form id="authForm" class="mt-4">
+                            <div class="mb-3">
+                                <label>Codename / Usuario</label>
+                                <input type="text" id="usernameInput" class="form-control" autocomplete="off" required>
+                            </div>
+                            <div class="mb-4">
+                                <label>Passphrase Secreta</label>
+                                <input type="password" id="passwordInput" class="form-control" required>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <button type="submit" id="btnLogin" class="btn btn-primary px-4 fw-bold">Login Estricto</button>
+                                <button type="button" id="btnRegister" class="btn btn-outline-light px-4">Establecer Nueva Bóveda</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="notesModule" class="hidden">
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary">
+                <h3 id="welcomeText" class="m-0 text-success fw-bold">Bóveda Cifrada</h3>
+                <button id="btnLogout" class="btn btn-danger btn-sm fw-bold">PULSAR PARA TERMINAR SESIÓN DE MEMORIA</button>
+            </div>
+
+            <div class="card bg-secondary text-light mb-4 border-0">
+                <div class="card-body">
+                    <form id="noteForm">
+                        <div class="mb-3">
+                            <label class="form-label text-info fw-bold">Redactar Mensaje Secreto</label>
+                            <textarea id="noteInput" class="form-control bg-dark text-success font-monospace" rows="4" placeholder="Solo texto plano inyectable..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success fw-bold w-100" id="btnSaveNote">[+] Cifrar Localmente e inyectar en Base Remota AES-GCM</button>
+                    </form>
+                </div>
+            </div>
+
+            <h5 class="mb-3 mt-4 text-secondary">Bloques Exfoliados y Desencriptados:</h5>
+            <div id="notesList"></div>
+            <div id="emptyState" class="text-center text-muted hidden my-5 py-5 border border-secondary rounded">Aún no hay mensajes en tu bóveda.</div>
+        </div>
+    </div>
+
+    <!-- Cargas Modulares JS sin empaquetar -->
+    <script src="js/crypto.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
 </body>
-
 </html>
