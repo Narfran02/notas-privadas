@@ -1,6 +1,32 @@
 let _sessionAESKey = null; // Efímera ZK Key (No sale de RAM)
 let _currentUsername = null;
 
+// Gestor de Modo Claro / Oscuro Inteligente (Preserva preferencia)
+const htmlElement = document.documentElement;
+const themeToggle = document.getElementById('themeToggle');
+const moonIcon = document.getElementById('moonIcon');
+const sunIcon = document.getElementById('sunIcon');
+
+const setTheme = (theme) => {
+    htmlElement.setAttribute('data-bs-theme', theme);
+    localStorage.setItem('shadow_theme', theme);
+    if (theme === 'dark') {
+        moonIcon.classList.add('hidden');
+        sunIcon.classList.remove('hidden');
+    } else {
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+    }
+};
+
+const savedTheme = localStorage.getItem('shadow_theme') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+setTheme(savedTheme);
+
+themeToggle.addEventListener('click', () => {
+    const currentTheme = htmlElement.getAttribute('data-bs-theme');
+    setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+});
+
 const authModule = document.getElementById('authModule');
 const notesModule = document.getElementById('notesModule');
 const alertsContainer = document.getElementById('alertsContainer');
@@ -141,15 +167,15 @@ async function loadNotes() {
             pText.textContent = plainText; // XSS PREVENCION
             
             const footer = document.createElement('div');
-            footer.className = 'd-flex justify-content-between mt-2 pt-2 border-top border-secondary';
+            footer.className = 'd-flex justify-content-between align-items-center mt-3 pt-3 border-top';
             
             const time = document.createElement('small');
-            time.className = 'text-muted';
+            time.className = 'text-secondary fw-medium';
             time.textContent = new Date(nota.created_at + 'Z').toLocaleString();
 
             const delBtn = document.createElement('button');
-            delBtn.className = 'btn btn-outline-danger btn-sm';
-            delBtn.textContent = 'Destruir';
+            delBtn.className = 'btn btn-outline-danger btn-sm px-3';
+            delBtn.innerHTML = '<svg class="me-1" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> Destruir';
             delBtn.onclick = () => deleteNote(nota.id);
 
             footer.appendChild(time);

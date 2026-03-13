@@ -3,76 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShadowNotes - Bóveda E2EE</title>
-    <!-- CSS Servido Localmente. Cero CDN -->
+    <title>ShadowNotes - Vault</title>
+    <!-- CSS Servido Localmente. Cero CDN para lógica, fuentes de Google para IU -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;800&display=swap" rel="stylesheet">
     <style>
         .hidden { display: none !important; }
-        .note-card { margin-bottom: 1rem; border: 1px solid #444; border-radius: 6px; padding: 1.25rem; background: #222; }
-        .note-text { white-space: pre-wrap; word-break: break-all; color: #0f0; font-family: monospace; }
-        .shadow-hero { text-shadow: 0 0 15px rgba(255, 255, 255, 0.4); letter-spacing: 2px; }
-        body { font-family: system-ui, -apple-system, sans-serif; }
+        body { font-family: 'Inter', system-ui, sans-serif; background-color: var(--bs-body-bg); color: var(--bs-body-color); transition: background-color 0.3s ease, color 0.3s ease; }
+        
+        .shadow-hero { 
+            font-family: 'Outfit', sans-serif; 
+            font-weight: 800; 
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--bs-primary), var(--bs-info));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 1.5rem 0; margin-bottom: 2rem; 
+            border-bottom: 1px solid var(--bs-border-color); 
+        }
+
+        .theme-toggle { 
+            background: var(--bs-tertiary-bg); border: 1px solid var(--bs-border-color); 
+            color: var(--bs-body-color); border-radius: 50%; 
+            width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: all 0.2s ease; 
+        }
+        .theme-toggle:hover { background: var(--bs-secondary-bg); transform: scale(1.05); }
+
+        .glass-card { 
+            background: var(--bs-tertiary-bg); 
+            border: 1px solid var(--bs-border-color); 
+            border-radius: 16px;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1); 
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-input {
+            background-color: var(--bs-body-bg);
+            border: 1px solid var(--bs-border-color);
+            color: var(--bs-body-color);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+        }
+        .glass-input:focus {
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+            border-color: var(--bs-primary);
+            box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+        }
+
+        .note-card { 
+            margin-bottom: 1.5rem; 
+            border: 1px solid var(--bs-border-color); 
+            border-radius: 12px; 
+            padding: 1.5rem; 
+            background-color: var(--bs-tertiary-bg); 
+            transition: transform 0.2s ease, box-shadow 0.2s ease; 
+        }
+        .note-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .note-text { 
+            white-space: pre-wrap; word-break: break-word; 
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; 
+            font-size: 0.95rem; line-height: 1.6; 
+            color: var(--bs-body-color); 
+            opacity: 0.9;
+        }
     </style>
 </head>
-<body class="bg-dark text-light">
+<body>
 
-    <div class="container mt-5" style="max-width: 800px;">
-        <h1 class="text-center shadow-hero mb-4">🛡️ ShadowNotes</h1>
+    <div class="container" style="max-width: 800px;">
         
+        <header class="nav-header">
+            <h2 class="m-0 shadow-hero d-flex align-items-center">
+                <svg class="me-2 text-primary" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                ShadowNotes
+            </h2>
+            <button id="themeToggle" class="theme-toggle" aria-label="Cambiar modo claro/oscuro">
+                <!-- Moon Icon (Default for dark mode) -->
+                <svg id="moonIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <!-- Sun Icon -->
+                <svg id="sunIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            </button>
+        </header>
+
         <div id="alertsContainer"></div>
 
-        <div id="authModule" class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card bg-secondary text-light border-0 shadow">
-                    <div class="card-body p-5">
-                        <h4 class="card-title text-center fw-bold">Autenticación Zero-Knowledge</h4>
-                        <div class="alert alert-warning text-dark mt-4">
-                            <strong>Aviso Crítico:</strong> Arquitectura Cero-Conocimiento. Tu contraseña cifra de extremo a extremo tus notas. Si pierdes el acceso, la recuperación material es <b>imposible</b> por nuestra parte al carecer de claves.
-                        </div>
-                        <form id="authForm" class="mt-4">
-                            <div class="mb-3">
-                                <label>Codename / Usuario</label>
-                                <input type="text" id="usernameInput" class="form-control" autocomplete="off" required>
-                            </div>
-                            <div class="mb-4">
-                                <label>Passphrase Secreta</label>
-                                <input type="password" id="passwordInput" class="form-control" required>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <button type="submit" id="btnLogin" class="btn btn-primary px-4 fw-bold">Login Estricto</button>
-                                <button type="button" id="btnRegister" class="btn btn-outline-light px-4">Establecer Nueva Bóveda</button>
-                            </div>
-                        </form>
+        <div id="authModule" class="row justify-content-center mt-5">
+            <div class="col-md-9">
+                <div class="glass-card">
+                    <h3 class="text-center fw-bold mb-4">Ingreso Zero-Knowledge</h3>
+                    
+                    <div class="alert alert-info border-info d-flex align-items-center mb-4 text-start">
+                        <svg class="me-3 flex-shrink-0" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                        <small>
+                            Tus notas se cifran localmente con E2EE. <b>No podemos recuperar tu información si pierdes tu contraseña.</b>
+                        </small>
                     </div>
+
+                    <form id="authForm" class="mt-4">
+                        <div class="mb-3">
+                            <label class="form-label text-secondary fw-semibold">Codename / Usuario</label>
+                            <input type="text" id="usernameInput" class="form-control glass-input" autocomplete="off" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label text-secondary fw-semibold">Passphrase Secreta</label>
+                            <input type="password" id="passwordInput" class="form-control glass-input" required>
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-2">
+                            <button type="button" id="btnRegister" class="btn btn-outline-secondary px-4 me-md-2" style="border-radius: 8px;">Crear Bóveda</button>
+                            <button type="submit" id="btnLogin" class="btn btn-primary px-4 fw-bold shadow-sm" style="border-radius: 8px;">Desbloquear</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
 
         <div id="notesModule" class="hidden">
-            <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary">
-                <h3 id="welcomeText" class="m-0 text-success fw-bold">Bóveda Cifrada</h3>
-                <button id="btnLogout" class="btn btn-danger btn-sm fw-bold">PULSAR PARA TERMINAR SESIÓN DE MEMORIA</button>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 id="welcomeText" class="m-0 fw-bold">Vault</h4>
+                <button id="btnLogout" class="btn btn-outline-danger btn-sm fw-bold px-3 py-2" style="border-radius: 8px;">
+                    Cerrar Sesión Segura
+                </button>
             </div>
 
-            <div class="card bg-secondary text-light mb-4 border-0">
-                <div class="card-body">
-                    <form id="noteForm">
-                        <div class="mb-3">
-                            <label class="form-label text-info fw-bold">Redactar Mensaje Secreto</label>
-                            <textarea id="noteInput" class="form-control bg-dark text-success font-monospace" rows="4" placeholder="Solo texto plano inyectable..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-success fw-bold w-100" id="btnSaveNote">[+] Cifrar Localmente e inyectar en Base Remota AES-GCM</button>
-                    </form>
-                </div>
+            <div class="glass-card mb-5">
+                <form id="noteForm">
+                    <div class="mb-3">
+                        <label class="form-label text-secondary fw-semibold">Redactar Mensaje Confidencial</label>
+                        <textarea id="noteInput" class="form-control glass-input font-monospace" rows="4" placeholder="Escribe aquí de forma segura..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary fw-bold w-100 py-2 shadow-sm" style="border-radius: 8px;" id="btnSaveNote">
+                        <svg class="me-2" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        Cifrar y Guardar (AES-GCM)
+                    </button>
+                </form>
             </div>
 
-            <h5 class="mb-3 mt-4 text-secondary">Bloques Exfoliados y Desencriptados:</h5>
+            <h5 class="mb-4 fw-bold">Notas Almacenadas</h5>
             <div id="notesList"></div>
-            <div id="emptyState" class="text-center text-muted hidden my-5 py-5 border border-secondary rounded">Aún no hay mensajes en tu bóveda.</div>
+            <div id="emptyState" class="text-center p-5 glass-card hidden my-4">
+                <svg class="text-secondary mb-3 opacity-50" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <div class="text-secondary fw-medium">No hay mensajes cifrados en tu bóveda.</div>
+            </div>
         </div>
     </div>
 
-    <!-- Cargas Modulares JS sin empaquetar -->
+    <!-- Cargas Modulares JS -->
     <script src="js/crypto.js"></script>
     <script src="js/api.js"></script>
     <script src="js/app.js"></script>
